@@ -14,7 +14,7 @@ library(dplyr)
 
 ```{r}
 # Load data
-df <- read_excel("100k_Sample_2024.xlsx", sheet = "Member Claims Summary")
+df <- read_excel("Data/100k_Sample_2024.xlsx", sheet = "Member Claims Summary")
 
 # Define age groups (assignment style)
 df <- df %>%
