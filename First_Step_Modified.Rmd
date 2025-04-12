@@ -14,7 +14,28 @@ library(dplyr)
 
 ```{r}
 # Load data
-df <- read_excel("data/100k_Sample_2024.xlsx", sheet = "Member Claims Summary")
+# df <- read_excel("data/100k_Sample_2024.xlsx", sheet = "Member Claims Summary")
+df <- data.table::fread("data/100k_Members_Claims_2024.csv")
+
+# Convert all columns with $ to numeric
+convert_dollar_columns <- function(df) {
+  df[] <- lapply(df, function(col) {
+    if (is.character(col) || is.factor(col)) {
+      if (any(grepl("\\$", col))) {
+        numeric_col <- suppressWarnings(as.numeric(gsub("[$,]", "", as.character(col))))
+        numeric_col[is.na(numeric_col)] <- 0
+        return(numeric_col)
+      }
+    }
+    return(col)
+  })
+  return(df)
+}
+
+# Assuming your data frame is named df
+df_clean <- convert_dollar_columns(df)
+df <- df_clean
+
 
 # Define age groups (assignment style)
 df <- df %>%
@@ -23,16 +44,6 @@ df <- df %>%
     AGE >= 18 & AGE <= 44 ~ "18-44",
     AGE >= 45 ~ "45+"
   ))
-```
-
-
-```{r}
-# Apply GIA Plan Design
-# GIA: $200 deductible, then 10% coinsurance
-df <- df %>%
-  mutate(
-    GIA_Paid_Est = pmax(`Medical Allowed` - 200, 0) * 0.9
-  )
 ```
 
 
